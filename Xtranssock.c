@@ -341,7 +341,7 @@ static int haveIPv6 = 1;
 
 #ifdef TRANS_CLIENT
 
-#include "NX.h"
+#include "nx/NX.h"
 
 typedef struct
 {
