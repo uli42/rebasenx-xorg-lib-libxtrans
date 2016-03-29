@@ -360,7 +360,14 @@ TRANS(PTSOpenClient)(XtransConnInfo ciptr, char *port)
 	uid_t       saved_euid;
 
 	saved_euid = geteuid();
+#ifndef NX_MODIFICATION
 	setuid( getuid() ); /** sets the euid to the actual/real uid **/
+#else
+	/** sets the euid to the actual/real uid **/
+	if (setuid( getuid() ) == -1) {
+		exit(1);
+	}
+#endif
 	if( chown( slave, saved_euid, -1 ) < 0 ) {
 		exit( 1 );
 		}
@@ -369,7 +376,17 @@ TRANS(PTSOpenClient)(XtransConnInfo ciptr, char *port)
     }
 
     waitpid(saved_pid, &exitval, 0);
+#ifndef NX_MODIFICATION
 
+#else
+    if (WIFEXITED(exitval) && WEXITSTATUS(exitval) != 0) {
+	close(fd);
+	close(server);
+	PRMSG(1, "PTSOpenClient: cannot set the owner of %s\n",
+	      slave, 0, 0);
+	return(-1);
+    }
+#endif
     if (chmod(slave, 0666) < 0) {
 	close(fd);
 	close(server);

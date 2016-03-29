@@ -1,4 +1,4 @@
-/* $XdotOrg: xc/lib/xtrans/Xtranssock.c,v 1.6 2005/06/22 22:36:51 alanc Exp $ */
+/* $XdotOrg: xc/lib/xtrans/Xtranssock.c,v 1.11 2005/11/08 06:33:26 jkj Exp $ */
 /* $Xorg: Xtranssock.c,v 1.11 2001/02/09 02:04:06 xorgcvs Exp $ */
 /*
 
@@ -53,7 +53,6 @@ from the copyright holders.
  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#ifdef NX_MODIFICATION
 /**************************************************************************/
 /*                                                                        */
 /* Copyright (c) 2001, 2011 NoMachine, http://www.nomachine.com/.         */
@@ -83,7 +82,6 @@ from the copyright holders.
 
 #endif
 
-#endif
 #include <ctype.h>
 #ifdef XTHREADS
 #include <X11/Xthreads.h>
@@ -325,7 +323,6 @@ static const struct in6_addr local_in6addr_any = IN6ADDR_ANY_INIT;
 static int haveIPv6 = 1;
 #endif
 
-#ifdef NX_MODIFICATION
 #ifndef X11_t
 
 /*
@@ -880,7 +877,6 @@ int TRANS(SocketCongestionChange) (XtransConnInfo ciptr, int *state)
 
 #endif /* #ifdef NX_TRANS_SOCKET */
 
-#endif
 /*
  * These are some utility function used by the real interface function below.
  */
@@ -1149,7 +1145,6 @@ TRANS(SocketOpenCOTSClientBase) (char *transname, char *protocol,
     SocketInitOnce();
 
     while ((i = TRANS(SocketSelectFamily) (i, transname)) >= 0) {
-#ifdef NX_MODIFICATION
 
 #if defined(NX_TRANS_SOCKET) && defined(TRANS_CLIENT)
 
@@ -1173,7 +1168,6 @@ TRANS(SocketOpenCOTSClientBase) (char *transname, char *protocol,
 
 #endif /* #if defined(NX_TRANS_SOCKET) && defined(TRANS_CLIENT) */
 
-#endif
 	if ((ciptr = TRANS(SocketOpen) (
 		 i, Sockettrans2devtab[i].devcotsname)) != NULL)
 	    break;
@@ -1188,14 +1182,12 @@ TRANS(SocketOpenCOTSClientBase) (char *transname, char *protocol,
 	return NULL;
     }
 
-#ifdef NX_MODIFICATION
 #if defined(NX_TRANS_SOCKET) && defined(TRANS_CLIENT)
 
     ciptr->priv = NULL;
 
 #endif
 
-#endif
     /* Save the index for later use */
 
     ciptr->index = i;
@@ -1297,7 +1289,6 @@ TRANS(SocketOpenCLTSClient) (Xtransport *thistrans, char *protocol,
     SocketInitOnce();
 
     while ((i = TRANS(SocketSelectFamily) (i, thistrans->TransName)) >= 0) {
-#ifdef NX_MODIFICATION
 
 #if defined(NX_TRANS_SOCKET) && defined(TRANS_CLIENT)
 
@@ -1321,7 +1312,6 @@ TRANS(SocketOpenCLTSClient) (Xtransport *thistrans, char *protocol,
 
 #endif /* #if defined(NX_TRANS_SOCKET) && defined(TRANS_CLIENT) */
 
-#endif
 	if ((ciptr = TRANS(SocketOpen) (
 		 i, Sockettrans2devtab[i].devcotsname)) != NULL)
 	    break;
@@ -1336,14 +1326,12 @@ TRANS(SocketOpenCLTSClient) (Xtransport *thistrans, char *protocol,
 	return NULL;
     }
 
-#ifdef NX_MODIFICATION
 #if defined(NX_TRANS_SOCKET) && defined(TRANS_CLIENT)
 
     ciptr->priv = NULL;
 
 #endif /* #if defined(NX_TRANS_SOCKET) && defined(TRANS_CLIENT) */
 
-#endif
     /* Save the index for later use */
 
     ciptr->index = i;
@@ -1479,13 +1467,11 @@ TRANS(SocketSetOption) (XtransConnInfo ciptr, int option, int arg)
 {
     PRMSG (2,"SocketSetOption(%d,%d,%d)\n", ciptr->fd, option, arg);
 
-#ifdef NX_MODIFICATION
 #ifdef NX_TRANS_TEST
     fprintf(stderr, "SocketSetOption: WARNING! Not setting option [%d] with value [%d] on descriptor [%d].\n",
                 option, arg, ciptr -> fd);
 #endif
 
-#endif
     return -1;
 }
 
@@ -1535,12 +1521,10 @@ TRANS(SocketCreateListener) (XtransConnInfo ciptr,
     else
 	retry = 0;
 
-#ifdef NX_MODIFICATION
 #if defined(NX_TRANS_SOCKET) && defined(NX_TRANS_TEST)
     fprintf(stderr, "SocketCreateListener: Creating listener for ciptr at [%p] on path [%s].\n",
                 (void *) ciptr, ((struct sockaddr_un *) sockname)->sun_family == AF_UNIX ?
                     ((struct sockaddr_un *) sockname)->sun_path : "TCP");
-#endif
 #endif
     while (bind (fd, (struct sockaddr *) sockname, namelen) < 0)
     {
@@ -1593,13 +1577,11 @@ TRANS(SocketCreateListener) (XtransConnInfo ciptr,
 
     ciptr->flags = 1 | (ciptr->flags & TRANS_KEEPFLAGS);
 
-#ifdef NX_MODIFICATION
 #if defined(NX_TRANS_SOCKET) && defined(NX_TRANS_TEST)
     fprintf(stderr, "SocketCreateListener: Set flags to [%d] for ciptr [%p].\n",
                 ciptr->flags, (void *) ciptr);
 #endif
 
-#endif
     return 0;
 }
 
@@ -1758,18 +1740,14 @@ TRANS(SocketUNIXCreateListener) (XtransConnInfo ciptr, char *port,
 #else
     mode = 0777;
 #endif
-#ifdef NX_MODIFICATION
 #ifdef NX_TRANS_SOCKET
     if (trans_mkdir(_NXGetUnixDir(UNIX_DIR), mode) == -1) {
         PRMSG (1, "SocketUNIXCreateListener: mkdir(%s) failed, errno = %d\n",
                _NXGetUnixDir(UNIX_DIR), errno, 0);
 #else
-#endif
     if (trans_mkdir(UNIX_DIR, mode) == -1) {
 	PRMSG (1, "SocketUNIXCreateListener: mkdir(%s) failed, errno = %d\n",
 	       UNIX_DIR, errno, 0);
-#ifdef NX_MODIFICATION
-#endif
 #endif
 	(void) umask (oldUmask);
 	return TRANS_CREATE_LISTENER_FAILED;
@@ -1779,27 +1757,19 @@ TRANS(SocketUNIXCreateListener) (XtransConnInfo ciptr, char *port,
     sockname.sun_family = AF_UNIX;
 
     if (port && *port) {
-#ifdef NX_MODIFICATION
 #ifdef NX_TRANS_SOCKET
         if (set_sun_path(port, _NXGetUnixPath(UNIX_PATH), sockname.sun_path) != 0) {
 #else
-#endif
 	if (set_sun_path(port, UNIX_PATH, sockname.sun_path) != 0) {
-#ifdef NX_MODIFICATION
-#endif
 #endif
 	    PRMSG (1, "SocketUNIXCreateListener: path too long\n", 0, 0, 0);
 	    return TRANS_CREATE_LISTENER_FAILED;
 	}
     } else {
-#ifdef NX_MODIFICATION
 #ifdef NX_TRANS_SOCKET
 	sprintf (sockname.sun_path, "%s%ld", _NXGetUnixPath(UNIX_PATH), (long)getpid());
 #else
-#endif
 	sprintf (sockname.sun_path, "%s%ld", UNIX_PATH, (long)getpid());
-#ifdef NX_MODIFICATION
-#endif
 #endif
     }
 
@@ -1810,11 +1780,9 @@ TRANS(SocketUNIXCreateListener) (XtransConnInfo ciptr, char *port,
     namelen = strlen(sockname.sun_path) + sizeof(sockname.sun_family);
 #endif
 
-#ifdef NX_MODIFICATION
 #if defined(NX_TRANS_SOCKET) && defined(NX_TRANS_TEST)
     fprintf(stderr, "SocketUNIXCreateListener: Unlinking path [%s] for ciptr at [%p].\n",
                 sockname.sun_path, (void *) ciptr);
-#endif
 #endif
     unlink (sockname.sun_path);
 
@@ -1887,18 +1855,14 @@ TRANS(SocketUNIXResetListener) (XtransConnInfo ciptr)
 #else
 	mode = 0777;
 #endif
-#ifdef NX_MODIFICATION
 #ifdef NX_TRANS_SOCKET
         if (trans_mkdir(_NXGetUnixDir(UNIX_DIR), mode) == -1) {
             PRMSG (1, "SocketUNIXResetListener: mkdir(%s) failed, errno = %d\n",
             _NXGetUnixDir(UNIX_DIR), errno, 0);
 #else
-#endif
         if (trans_mkdir(UNIX_DIR, mode) == -1) {
             PRMSG (1, "SocketUNIXResetListener: mkdir(%s) failed, errno = %d\n",
 	    UNIX_DIR, errno, 0);
-#ifdef NX_MODIFICATION
-#endif
 #endif
 	    (void) umask (oldUmask);
 	    return TRANS_RESET_FAILURE;
@@ -2678,15 +2642,11 @@ TRANS(SocketUNIXConnect) (XtransConnInfo ciptr, char *host, char *port)
      * we know for sure it will fail.
      */
 
-#ifdef NX_MODIFICATION
 #if defined(NX_TRANS_SOCKET) && defined(TRANS_CLIENT)
     if (strcmp(host, "unix") != 0 && strcasecmp(host, "nx") != 0 &&
             strncasecmp(host, "nx,", 3) != 0 && !UnixHostReallyLocal (host))
 #else
-#endif
     if (strcmp (host, "unix") != 0 && !UnixHostReallyLocal (host))
-#ifdef NX_MODIFICATION
-#endif
 #endif
     {
 	PRMSG (1,
@@ -2713,14 +2673,10 @@ TRANS(SocketUNIXConnect) (XtransConnInfo ciptr, char *host, char *port)
     
     sockname.sun_family = AF_UNIX;
 
-#ifdef NX_MODIFICATION
 #ifdef NX_TRANS_SOCKET
     if (set_sun_path(port, _NXGetUnixPath(UNIX_PATH), sockname.sun_path) != 0) {
 #else
-#endif
     if (set_sun_path(port, UNIX_PATH, sockname.sun_path) != 0) {
-#ifdef NX_MODIFICATION
-#endif
 #endif
 	PRMSG (1, "SocketUNIXConnect: path too long\n", 0, 0, 0);
 	return TRANS_CONNECT_FAILED;
@@ -2739,14 +2695,10 @@ TRANS(SocketUNIXConnect) (XtransConnInfo ciptr, char *host, char *port)
      * This is gross, but it was in Xlib
      */
     old_sockname.sun_family = AF_UNIX;
-#ifdef NX_MODIFICATION
 #ifdef NX_TRANS_SOCKET
     if (set_sun_path(port, _NXGetOldUnixPath(OLD_UNIX_PATH), old_sockname.sun_path) != 0) {
 #else
-#endif
     if (set_sun_path(port, OLD_UNIX_PATH, old_sockname.sun_path) != 0) {
-#ifdef NX_MODIFICATION
-#endif
 #endif
 	PRMSG (1, "SocketUNIXConnect: path too long\n", 0, 0, 0);
 	return TRANS_CONNECT_FAILED;
@@ -2755,7 +2707,6 @@ TRANS(SocketUNIXConnect) (XtransConnInfo ciptr, char *host, char *port)
 	sizeof (old_sockname.sun_family);
 #endif
 
-#ifdef NX_MODIFICATION
 #if defined(NX_TRANS_SOCKET) && defined(TRANS_CLIENT)
 
     if (ciptr->priv != NULL)
@@ -2768,7 +2719,6 @@ TRANS(SocketUNIXConnect) (XtransConnInfo ciptr, char *host, char *port)
         goto SocketUNIXConnectPost;
     }
 
-#endif
 #endif
 
     /*
@@ -2821,14 +2771,12 @@ TRANS(SocketUNIXConnect) (XtransConnInfo ciptr, char *host, char *port)
 	}
     }
 
-#ifdef NX_MODIFICATION
 #if defined(NX_TRANS_SOCKET) && defined(TRANS_CLIENT)
 
 SocketUNIXConnectPost:
 
 #endif
 
-#endif
     /*
      * Get the socket name and the peer name from the connect socket,
      * since this is unix domain.
@@ -2863,7 +2811,6 @@ TRANS(SocketBytesReadable) (XtransConnInfo ciptr, BytesReadable_t *pend)
 {
     PRMSG (2,"SocketBytesReadable(%p,%d,%p)\n",
 	ciptr, ciptr->fd, pend);
-#ifdef NX_MODIFICATION
 
 #if defined(NX_TRANS_SOCKET) && defined(TRANS_CLIENT)
 
@@ -2916,7 +2863,6 @@ TRANS(SocketBytesReadable) (XtransConnInfo ciptr, BytesReadable_t *pend)
 
 #endif /* #if defined(NX_TRANS_SOCKET) && defined(TRANS_CLIENT) */
 
-#endif
 #if defined(QNX4)
     *pend = 0L; /* FIONREAD only returns a short. Zero out upper bits */
 #endif
@@ -2946,7 +2892,6 @@ TRANS(SocketRead) (XtransConnInfo ciptr, char *buf, int size)
 {
     PRMSG (2,"SocketRead(%d,%p,%d)\n", ciptr->fd, buf, size);
 
-#ifdef NX_MODIFICATION
 #if defined(NX_TRANS_SOCKET) && defined(TRANS_CLIENT)
 
     /*
@@ -2982,7 +2927,6 @@ TRANS(SocketRead) (XtransConnInfo ciptr, char *buf, int size)
 
 #else /* #if defined(NX_TRANS_SOCKET) && defined(TRANS_CLIENT) */
 
-#endif
 #if defined(WIN32) || defined(__UNIXOS2__)
     {
 	int ret = recv ((SOCKET)ciptr->fd, buf, size, 0);
@@ -2994,10 +2938,8 @@ TRANS(SocketRead) (XtransConnInfo ciptr, char *buf, int size)
 #else
     return read (ciptr->fd, buf, size);
 #endif /* WIN32 */
-#ifdef NX_MODIFICATION
 
 #endif /* #if defined(NX_TRANS_SOCKET) && defined(TRANS_CLIENT) */
-#endif
 }
 
 
@@ -3007,7 +2949,6 @@ TRANS(SocketWrite) (XtransConnInfo ciptr, char *buf, int size)
 {
     PRMSG (2,"SocketWrite(%d,%p,%d)\n", ciptr->fd, buf, size);
 
-#ifdef NX_MODIFICATION
 #if defined(NX_TRANS_SOCKET) && defined(TRANS_CLIENT)
 
     /*
@@ -3043,7 +2984,6 @@ TRANS(SocketWrite) (XtransConnInfo ciptr, char *buf, int size)
 
 #else /* #if defined(NX_TRANS_SOCKET) && defined(TRANS_CLIENT) */
 
-#endif
 #if defined(WIN32) || defined(__UNIXOS2__)
     {
 	int ret = send ((SOCKET)ciptr->fd, buf, size, 0);
@@ -3055,10 +2995,8 @@ TRANS(SocketWrite) (XtransConnInfo ciptr, char *buf, int size)
 #else
     return write (ciptr->fd, buf, size);
 #endif /* WIN32 */
-#ifdef NX_MODIFICATION
 
 #endif /* #if defined(NX_TRANS_SOCKET) && defined(TRANS_CLIENT) */
-#endif
 }
 
 
@@ -3068,7 +3006,6 @@ TRANS(SocketReadv) (XtransConnInfo ciptr, struct iovec *buf, int size)
 {
     PRMSG (2,"SocketReadv(%d,%p,%d)\n", ciptr->fd, buf, size);
 
-#ifdef NX_MODIFICATION
 #if defined(NX_TRANS_SOCKET) && defined(TRANS_CLIENT)
 
     /*
@@ -3088,12 +3025,9 @@ TRANS(SocketReadv) (XtransConnInfo ciptr, struct iovec *buf, int size)
 
 #else /* #if defined(NX_TRANS_SOCKET) && defined(TRANS_CLIENT) */
 
-#endif
     return READV (ciptr, buf, size);
-#ifdef NX_MODIFICATION
 
 #endif /* #if defined(NX_TRANS_SOCKET) && defined(TRANS_CLIENT) */
-#endif
 }
 
 
@@ -3103,7 +3037,6 @@ TRANS(SocketWritev) (XtransConnInfo ciptr, struct iovec *buf, int size)
 {
     PRMSG (2,"SocketWritev(%d,%p,%d)\n", ciptr->fd, buf, size);
 
-#ifdef NX_MODIFICATION
 #if defined(NX_TRANS_SOCKET) && defined(TRANS_CLIENT)
 
     /*
@@ -3123,12 +3056,9 @@ TRANS(SocketWritev) (XtransConnInfo ciptr, struct iovec *buf, int size)
 
 #else /* #if defined(NX_TRANS_SOCKET) && defined(TRANS_CLIENT) */
 
-#endif
     return WRITEV (ciptr, buf, size);
-#ifdef NX_MODIFICATION
 
 #endif /* #if defined(NX_TRANS_SOCKET) && defined(TRANS_CLIENT) */
-#endif
 }
 
 
@@ -3184,9 +3114,6 @@ TRANS(SocketUNIXClose) (XtransConnInfo ciptr)
     struct sockaddr_un	*sockname = (struct sockaddr_un *) ciptr->addr;
     int ret;
 
-#ifndef NX_MODIFICATION
-    PRMSG (2,"SocketUNIXClose(%p,%d)\n", ciptr, ciptr->fd, 0);
-#else
     PRMSG (2,"SocketUNIXClose(%x,%d)\n", ciptr, ciptr->fd, 0);
 
 #if defined(NX_TRANS_SOCKET) && defined(TRANS_CLIENT)
@@ -3197,24 +3124,20 @@ TRANS(SocketUNIXClose) (XtransConnInfo ciptr)
     }
 
 #endif
-#endif
 
     ret = close(ciptr->fd);
 
-#ifdef NX_MODIFICATION
 #if defined(NX_TRANS_SOCKET) && defined(NX_TRANS_TEST)
     fprintf(stderr, "SocketUNIXClose: Flags are [%d] for ciptr at [%p] check is [%d].\n",
                 ciptr->flags, (void *) ciptr, (ciptr->flags && sockname
                     && sockname->sun_family == AF_UNIX && sockname->sun_path[0]));
 #endif
 
-#endif
     if (ciptr->flags
        && sockname
        && sockname->sun_family == AF_UNIX
        && sockname->sun_path[0])
     {
-#ifdef NX_MODIFICATION
 #if defined(NX_TRANS_SOCKET) && defined(NX_TRANS_TEST)
         if (!(ciptr->flags & TRANS_NOUNLINK))
         {
@@ -3223,11 +3146,8 @@ TRANS(SocketUNIXClose) (XtransConnInfo ciptr)
                 unlink (sockname->sun_path);
         }
 #else
-#endif
 	if (!(ciptr->flags & TRANS_NOUNLINK))
 		unlink (sockname->sun_path);
-#ifdef NX_MODIFICATION
-#endif
 #endif
     }
 
@@ -3247,7 +3167,6 @@ TRANS(SocketUNIXCloseForCloning) (XtransConnInfo ciptr)
     PRMSG (2,"SocketUNIXCloseForCloning(%p,%d)\n",
 	ciptr, ciptr->fd, 0);
 
-#ifdef NX_MODIFICATION
 #if defined(NX_TRANS_SOCKET) && defined(TRANS_CLIENT)
 
     if (ciptr->priv)
@@ -3257,7 +3176,6 @@ TRANS(SocketUNIXCloseForCloning) (XtransConnInfo ciptr)
 
 #endif
 
-#endif
     ret = close(ciptr->fd);
 
     return ret;
